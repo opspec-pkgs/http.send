@@ -1,0 +1,8 @@
+name: test
+description: tests the op
+run:
+  op:
+    ref: github.com/opspec-pkgs/opctl.op.validate#1.0.0
+    inputs:
+      opctlVersion: 0.1.53
+      op: $(../..)

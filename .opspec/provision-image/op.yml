@@ -1,0 +1,44 @@
+name: provision-image
+description: |
+  Provisions image for the op to [opspec-pkgs image registry](https://github.com/orgs/opspec-pkgs/packages) w/ name `$(opDotYml.name):${opDotYml.version}`.
+  
+  > Before first use, a Dockerfile MUST be added to `.opspec/provision-image`
+inputs:
+  githubUsername:
+    string:
+      constraints: { minLength: 1 }
+      description: user for logging in to github
+  githubAccessToken:
+    string:
+      constraints: { minLength: 1 }
+      description: accessToken for logging in to github
+      isSecret: true
+run:
+  serial:
+    - op:
+        ref: github.com/opspec-pkgs/yaml.parse#1.0.0
+        inputs:
+          yaml: $(../../op.yml)
+        outputs:
+          result: $(opDotYml)
+    - container:
+        image: { ref: 'alpine:3.6' }
+        cmd: [sh, -ce, 'echo -n ghcr.io/opspec-pkgs/${opName#*/*/}:$(opDotYml.version) > /imageName']
+        envVars:
+          opName: $(opDotYml.name)
+        files:
+          /imageName: $(imageName)
+    - op:
+        ref: github.com/opspec-pkgs/docker.image.build#2.1.0
+        inputs:
+          dockerfile: $(./Dockerfile)
+          imageName:
+        outputs: { imageTar }
+    - op:
+        ref: github.com/opspec-pkgs/docker.image.push#2.1.0
+        inputs:
+          imageTar:
+          imageName:
+          registry: ghcr.io
+          username: $(githubUsername)
+          password: $(githubAccessToken)

@@ -1,0 +1,58 @@
+description: Sends an http request
+name: github.com/opspec-pkgs/http.send
+inputs:
+  body:
+    description: body/content of the request
+    string:
+      default: ''
+  headers:
+    description: headers of the request
+    object:
+      constraints:
+        patternProperties:
+          ".+":
+            type: array
+      default: {}
+  method:
+    description: method of the request e.g. GET, HEAD, POST, PUT, DELETE, etc...
+    string:
+      constraints:
+        minLength: 1
+  url:
+    description: url of the request
+    string:
+      constraints:
+        format: uri
+outputs:
+  body:
+    description: body/content of the response
+    string:
+      default: ''
+  headers:
+    description: headers of the response
+    object: {}
+  protocol:
+    description: protocol of the response e.g. HTTP/1.1
+    string: {}
+  statusCode:
+    description: status code of the response
+    number: {}
+run:
+  container:
+    cmd:
+      - go
+      - run
+      - /src/main.go
+    dirs:
+      /src: $(./)
+    image:
+      ref: golang:1.23
+    files:
+      /body.txt: $(body)
+      /headers.json: $(headers)
+      /method.txt: $(method)
+      /protocol.txt: $(protocol)
+      /statusCode.txt: $(statusCode)
+      /url.txt: $(url)
+    workDir: /src
+version: 1.0.0

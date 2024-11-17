@@ -1,0 +1,10 @@
+name: build
+description: builds the op
+run:
+  serial:
+    - op:
+        ref: github.com/opspec-pkgs/_.op.bootstrap#4.1.1
+        inputs:
+          srcDir: $(../..)
+    - op:
+        ref: test

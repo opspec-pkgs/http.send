@@ -1,0 +1,35 @@
+name: e2eTest
+run:
+  serial:
+    - op:
+        ref: $(../../)
+        inputs:
+          headers:
+            Content-Type:
+              - text/html
+          url: https://google.com
+          method: GET
+        outputs:
+          body:
+          headers:
+          protocol:
+          statusCode:
+    - container:
+        image:
+          ref: alpine
+        cmd:
+          - sh
+          - -ce
+          - |
+            echo $(protocol) $(statusCode)
+            echo 'Content-Type'
+            echo $(headers[Content-Type][0])
+            echo 'headers'
+            cat /headers
+            echo ""
+            echo "body"
+            cat /body
+            sleep 1
+        files:
+          /body: $(body)
+          /headers: $(headers)
